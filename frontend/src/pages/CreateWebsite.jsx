@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Building2, User, Phone, Mail, MapPin, Link as LinkIcon, MessageCircle, Instagram, Facebook, Globe, Loader2, Youtube, CheckCircle2, XCircle, Sparkles, Navigation, Plus, X, Clock, Calendar, Gift, ShoppingBag, Map, Palette, CheckCircle, AlertCircle, Edit3 } from 'lucide-react';
+import { Building2, User, Phone, Mail, MapPin, Link as LinkIcon, MessageCircle, Instagram, Facebook, Globe, Loader2, Youtube, CheckCircle2, XCircle, Sparkles, Navigation, Plus, X, Clock, Calendar, Gift, ShoppingBag, Map, Palette, CheckCircle, AlertCircle, Edit3, Eye } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FormInput from '../components/forms/FormInput';
@@ -7,6 +7,7 @@ import TextArea from '../components/forms/TextArea';
 import CategorySelect from '../components/forms/CategorySelect';
 import FileUploader from '../components/forms/FileUploader';
 import SubmitButton from '../components/forms/SubmitButton';
+import WebsitePreview from '../components/WebsitePreview';
 import { businessAPI } from '../config/api';
 
 const CreateWebsite = () => {
@@ -17,6 +18,7 @@ const CreateWebsite = () => {
   const [subdomainStatus, setSubdomainStatus] = useState(null); // { checking: false, available: null, slug: '', suggestions: [] }
   const [customSlug, setCustomSlug] = useState('');
   const [showCustomSlug, setShowCustomSlug] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const checkTimeoutRef = useRef(null);
   const [formData, setFormData] = useState({
     businessName: '',
@@ -1393,13 +1395,23 @@ const CreateWebsite = () => {
 
               {/* Submit Button */}
               <div className="pt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-75"></div>
-                  <div className="relative">
-                    <SubmitButton loading={loading} text="Create Your Website" />
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className="flex-1 px-6 py-4 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                  >
+                    <Eye className="w-5 h-5" />
+                    Preview Website
+                  </button>
+                  <div className="flex-1 relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur opacity-75"></div>
+                    <div className="relative">
+                      <SubmitButton loading={loading} text="Create Your Website" />
+                    </div>
                   </div>
                 </div>
-                <p className="mt-4 text-center text-sm text-gray-500">
+                <p className="text-center text-sm text-gray-500">
                   By submitting, you agree to our Terms of Service and Privacy Policy
                 </p>
               </div>
@@ -1428,6 +1440,11 @@ const CreateWebsite = () => {
         </div>
       </div>
       <Footer />
+      
+      {/* Website Preview Modal */}
+      {showPreview && (
+        <WebsitePreview formData={formData} onClose={() => setShowPreview(false)} />
+      )}
     </>
   );
 };

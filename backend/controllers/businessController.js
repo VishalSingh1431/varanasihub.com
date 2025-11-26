@@ -91,6 +91,36 @@ export const createBusiness = async (req, res) => {
       });
     }
 
+    // Get user ID from token if available
+    const userId = req.user?.userId || null;
+
+    // Check user role and restrict content_admin to one website only
+    if (userId) {
+      const user = await User.findById(userId);
+      if (user) {
+        // If user is content_admin, check if they already have a business
+        if (user.role === 'content_admin') {
+          const existingBusinesses = await Business.findByUserId(userId);
+          // Count only approved or pending businesses (not rejected)
+          const activeBusinesses = existingBusinesses.filter(
+            biz => biz.status === 'approved' || biz.status === 'pending'
+          );
+          
+          if (activeBusinesses.length > 0) {
+            return res.status(403).json({
+              error: 'Content admins can only create one website. You already have a website. Please contact the main admin if you need to create additional websites.',
+              existingBusiness: {
+                id: activeBusinesses[0].id,
+                businessName: activeBusinesses[0].businessName,
+                status: activeBusinesses[0].status,
+              }
+            });
+          }
+        }
+        // main_admin can create unlimited websites, so no restriction needed
+      }
+    }
+
     // Generate slug from business name or use preferred slug
     let slug;
     if (preferredSlug && typeof preferredSlug === 'string') {
@@ -208,9 +238,6 @@ export const createBusiness = async (req, res) => {
       subdomainUrl = `https://${slug}.${baseDomain}`;
       subdirectoryUrl = `https://${baseDomain}/${slug}`;
     }
-
-    // Get user ID from token if available
-    const userId = req.user?.userId || null;
 
     // Create business record
     const business = await Business.create({

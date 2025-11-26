@@ -94,6 +94,15 @@ export const authAPI = {
 };
 
 // Business API functions
+export const analyticsAPI = {
+  getAnalytics: async (businessId, period = 'all') => {
+    return apiCall(`/analytics/${businessId}?period=${period}`, { method: 'GET' });
+  },
+  getUserAnalytics: async () => {
+    return apiCall('/analytics/user/all', { method: 'GET' });
+  },
+};
+
 export const businessAPI = {
   getUserBusinesses: async () => {
     return apiCall('/business/my-businesses', {
@@ -168,6 +177,73 @@ export const businessAPI = {
     return apiCall('/admin/stats', {
       method: 'GET',
     });
+  },
+
+  // Admin business management
+  getAllBusinesses: async () => {
+    return apiCall('/admin/businesses', { method: 'GET' });
+  },
+
+  deleteBusiness: async (id) => {
+    return apiCall(`/admin/businesses/${id}`, { method: 'DELETE' });
+  },
+
+  updateBusinessAdmin: async (id, formData) => {
+    const submitData = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (key === 'services' || key === 'specialOffers' || key === 'businessHours' || key === 'appointmentSettings') {
+        submitData.append(key, JSON.stringify(formData[key] || (key === 'businessHours' || key === 'appointmentSettings' ? {} : [])));
+      } else if (key !== 'logo' && key !== 'images' && !key.startsWith('serviceImage_')) {
+        submitData.append(key, formData[key] || '');
+      }
+    });
+
+    // Add files
+    if (formData.logo) {
+      submitData.append('logo', formData.logo);
+    }
+    if (formData.images && Array.isArray(formData.images)) {
+      formData.images.forEach((image) => {
+        submitData.append('images', image);
+      });
+    }
+    if (formData.services && Array.isArray(formData.services)) {
+      formData.services.forEach((service, index) => {
+        if (service.image) {
+          submitData.append(`serviceImage_${index}`, service.image);
+        }
+      });
+    }
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/businesses/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: submitData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update business');
+    }
+    return data;
+  },
+
+  // Unified analytics
+  getAllAnalytics: async () => {
+    return apiCall('/admin/analytics/all', { method: 'GET' });
+  },
+
+  // Premium upgrade
+  upgradeToPremium: async (businessId) => {
+    return apiCall(`/business/${businessId}/upgrade-premium`, { method: 'POST' });
+  },
+
+  // QR Code
+  getQRCode: async (businessId) => {
+    return apiCall(`/business/${businessId}/qrcode`, { method: 'GET' });
   },
 
   updateBusiness: async (id, formData) => {

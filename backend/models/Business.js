@@ -12,8 +12,8 @@ class Business {
       INSERT INTO businesses (
         business_name, owner_name, category, mobile, email, address,
         map_link, whatsapp, description, logo_url, images_url,
-        youtube_video, navbar_tagline, footer_description, services, special_offers, business_hours, appointment_settings, theme, social_links, slug, subdomain_url, subdirectory_url, status, user_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+        youtube_video, navbar_tagline, footer_description, services, special_offers, business_hours, appointment_settings, theme, social_links, slug, subdomain_url, subdirectory_url, status, user_id, is_premium
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
       RETURNING *
     `;
 
@@ -43,6 +43,7 @@ class Business {
       data.subdirectoryUrl,
       data.status || 'pending',
       data.userId || null,
+      data.isPremium || false,
     ];
 
     const result = await pool.query(query, values);
@@ -118,8 +119,9 @@ class Business {
         appointment_settings = COALESCE($18, appointment_settings),
         theme = COALESCE($19, theme),
         social_links = COALESCE($20, social_links),
+        is_premium = COALESCE($21, is_premium),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $21
+      WHERE id = $22
       RETURNING *
     `;
 
@@ -144,7 +146,7 @@ class Business {
       data.appointmentSettings ? JSON.stringify(data.appointmentSettings) : null,
       data.theme || null,
       data.socialLinks ? JSON.stringify(data.socialLinks) : null,
-      data.editApprovalStatus || null,
+      data.isPremium !== undefined ? data.isPremium : null,
       id,
     ];
 
@@ -155,9 +157,19 @@ class Business {
   /**
    * Find all businesses
    */
-  static async findAll() {
-    const query = 'SELECT * FROM businesses ORDER BY created_at DESC';
-    const result = await pool.query(query);
+  static async findAll(statusFilter = null) {
+    let query = 'SELECT * FROM businesses';
+    const values = [];
+    
+    if (statusFilter) {
+      query += ' WHERE status = $1';
+      values.push(statusFilter);
+    }
+    
+    // Premium businesses first, then by creation date
+    query += ' ORDER BY is_premium DESC, created_at DESC';
+    
+    const result = await pool.query(query, values);
     return result.rows.map(row => Business.mapRowToBusiness(row));
   }
 
@@ -204,7 +216,13 @@ class Business {
       subdirectoryUrl: row.subdirectory_url,
       status: row.status,
       editApprovalStatus: row.edit_approval_status || 'none',
+      isPremium: row.is_premium || false,
       userId: row.user_id,
+      ecommerceEnabled: row.ecommerce_enabled || false,
+      abTestEnabled: row.ab_test_enabled || false,
+      currentVariant: row.current_variant || 'default',
+      products: typeof row.products === 'object' && row.products !== null ? row.products : JSON.parse(row.products || '[]'),
+      verified: row.verified || false,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };

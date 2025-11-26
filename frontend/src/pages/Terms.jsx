@@ -67,7 +67,7 @@ const Terms = () => {
           >
             <div className="mb-8 text-gray-600">
               <p className="mb-4">
-                <strong>Last Updated:</strong> {new Date().toLocaleDateString('en-US', { 
+                <strong>Last Updated:</strong> {new Date().toLocaleDateString('en-IN', { 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 

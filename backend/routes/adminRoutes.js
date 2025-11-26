@@ -9,8 +9,14 @@ import {
   getAllUsers,
   updateUserRole,
   getAdminStats,
+  getAllBusinesses,
+  deleteBusiness,
+  updateBusinessAdmin,
+  getAllAnalytics,
+  toggleBusinessVerification,
 } from '../controllers/adminController.js';
 import { verifyToken } from '../middleware/auth.js';
+import upload from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -33,6 +39,17 @@ router.post('/reject-edit/:id', rejectEdit);
 // User management
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', updateUserRole);
+
+// Business management (admin can manage all businesses)
+router.get('/businesses', getAllBusinesses);
+router.delete('/businesses/:id', deleteBusiness);
+router.put('/businesses/:id', upload.any(), updateBusinessAdmin);
+
+// Unified analytics
+router.get('/analytics/all', getAllAnalytics);
+
+// Business verification
+router.post('/businesses/:id/verify', toggleBusinessVerification);
 
 export default router;
 

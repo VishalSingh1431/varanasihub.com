@@ -1,15 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import compression from 'compression';
+import morgan from 'morgan';
 import { initializeDatabase } from './config/database.js';
+import { validateEnv } from './middleware/validateEnv.js';
+import { securityMiddleware, apiLimiter, authLimiter, uploadLimiter } from './middleware/security.js';
 import authRoutes from './routes/auth.js';
 import businessRoutes from './routes/businessRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import ecommerceRoutes from './routes/ecommerceRoutes.js';
+import abTestRoutes from './routes/abTestRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
 
 dotenv.config();
 
+// Validate environment variables
+validateEnv();
+
 const app = express();
-const PORT = process.env.PORT || 5000; // Server port configuration
+const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Initialize PostgreSQL database (non-blocking)
 initializeDatabase()
@@ -22,10 +34,39 @@ initializeDatabase()
     console.warn('⚠️  Please check your DATABASE_URL in .env file');
   });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security middleware
+app.use(securityMiddleware);
+
+// Compression middleware (gzip)
+app.use(compression());
+
+// CORS configuration
+const corsOptions = {
+  origin: NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://varanasihub.com'
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
+
+// Request logging
+if (NODE_ENV === 'production') {
+  app.use(morgan('combined')); // Apache combined log format
+} else {
+  app.use(morgan('dev')); // Colored output for development
+}
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 
 // Extract subdomain from hostname (for subdomain routing)
 app.use((req, res, next) => {
@@ -73,7 +114,11 @@ app.get('/api/health', async (req, res) => {
 // API Routes (must come before subdomain routing)
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
+app.use('/api/ecommerce', ecommerceRoutes);
+app.use('/api/ab-test', abTestRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 // Subdomain routing handler (for business websites)
 // This will be called when accessing: business-slug.varanasihub.com
@@ -89,13 +134,94 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Subdirectory routing is handled by businessRoutes.get('/:slug')
-// For accessing: varanasihub.com/business-slug
+// Subdirectory routing handler (for business websites)
+// This will be called when accessing: varanasihub.com/business-slug
+app.get('/:slug', async (req, res, next) => {
+  const { slug } = req.params;
+  
+  console.log(`[Subdirectory Route] Checking slug: ${slug}, path: ${req.path}, subdomain: ${req.subdomain}`);
+  
+  // Skip if it's an API route
+  if (req.path.startsWith('/api')) {
+    console.log(`[Subdirectory Route] Skipping API route: ${req.path}`);
+    return next();
+  }
+  
+  // Skip if there's a subdomain (subdomain routing takes precedence)
+  if (req.subdomain && req.subdomain !== 'www' && req.subdomain !== 'api') {
+    console.log(`[Subdirectory Route] Skipping - subdomain present: ${req.subdomain}`);
+    return next();
+  }
+  
+  // Skip if the path looks like a file (has an extension)
+  if (slug.includes('.')) {
+    console.log(`[Subdirectory Route] Skipping - looks like a file: ${slug}`);
+    return next();
+  }
+  
+  try {
+    console.log(`[Subdirectory Route] Looking up business with slug: ${slug}`);
+    const Business = (await import('./models/Business.js')).default;
+    const business = await Business.findBySlug(slug, ['approved']);
+    
+    if (!business) {
+      // Business not found, let it fall through to 404 handler
+      console.log(`[Subdirectory Route] Business not found for slug: ${slug}`);
+      return next();
+    }
+    
+    console.log(`[Subdirectory Route] Business found: ${business.businessName}, generating HTML...`);
+    // Business found, generate and return HTML
+    const { generateBusinessHTML } = await import('./views/businessTemplate.js');
+    const html = generateBusinessHTML(business);
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(html);
+  } catch (error) {
+    console.error('[Subdirectory Route] Error:', error);
+    console.error('[Subdirectory Route] Error stack:', error.stack);
+    // On error, fall through to 404 handler
+    return next();
+  }
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.path,
+  });
+});
+
+// Error handling middleware (must be last)
+app.use((err, req, res, next) => {
+  console.error('Error:', {
+    message: err.message,
+    stack: NODE_ENV === 'development' ? err.stack : undefined,
+    path: req.path,
+    method: req.method,
+  });
+  
+  const statusCode = err.statusCode || err.status || 500;
+  const isDevelopment = NODE_ENV === 'development';
+  
+  res.status(statusCode).json({
+    error: err.message || 'Internal server error',
+    ...(isDevelopment && { 
+      stack: err.stack,
+      path: req.path,
+    }),
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📝 Environment: ${NODE_ENV}`);
   console.log(`📝 Database: PostgreSQL (Aiven)`);
   console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
+  if (NODE_ENV === 'production') {
+    console.log(`🔒 Security: Enabled (Helmet, Rate Limiting)`);
+    console.log(`📊 Logging: Enabled (Morgan)`);
+  }
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`❌ Port ${PORT} is already in use.`);

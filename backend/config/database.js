@@ -69,12 +69,14 @@ if (process.env.DATABASE_URL || process.env.POSTGRES_SERVICE_URI) {
   };
 }
 
-// PostgreSQL connection pool
+// PostgreSQL connection pool (optimized for production)
 const pool = new Pool({
   ...dbConfig,
-  max: 20, // Maximum number of clients in the pool
+  max: process.env.NODE_ENV === 'production' ? 30 : 20, // More connections in production
+  min: process.env.NODE_ENV === 'production' ? 5 : 2, // Keep minimum connections alive
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000, // Increased to 10 seconds for remote connections
+  connectionTimeoutMillis: 10000,
+  allowExitOnIdle: false, // Keep pool alive
 });
 
 // Test connection

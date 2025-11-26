@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, Clock, Sparkles } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { SEOHead } from '../components/SEOHead';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,6 @@ const Contact = () => {
     setIsSubmitting(true);
     setSubmitStatus(null);
 
-    // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus('success');
@@ -40,25 +40,29 @@ const Contact = () => {
       icon: Mail,
       title: 'Email Us',
       content: 'info@varanasihub.com',
-      link: 'mailto:info@varanasihub.com'
+      link: 'mailto:info@varanasihub.com',
+      gradient: 'from-blue-500 to-cyan-500'
     },
     {
       icon: Phone,
       title: 'Call Us',
       content: '+91 9876543210',
-      link: 'tel:+919876543210'
+      link: 'tel:+919876543210',
+      gradient: 'from-purple-500 to-pink-500'
     },
     {
       icon: MapPin,
       title: 'Visit Us',
       content: 'Varanasi, Uttar Pradesh, India',
-      link: null
+      link: null,
+      gradient: 'from-green-500 to-emerald-500'
     },
     {
       icon: Clock,
       title: 'Business Hours',
       content: 'Mon - Sat: 9:00 AM - 6:00 PM',
-      link: null
+      link: null,
+      gradient: 'from-orange-500 to-red-500'
     }
   ];
 
@@ -73,45 +77,90 @@ const Contact = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.5,
-        ease: 'easeOut'
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1]
       }
     }
   };
 
   return (
     <>
+      <SEOHead
+        title="Contact VaranasiHub - Get in Touch"
+        description="Contact VaranasiHub for support, questions, or business inquiries. We're here to help you create your online presence."
+        image="/og-image.jpg"
+        url={`${window.location.origin}/contact`}
+      />
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 md:py-24"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-4">
-              Get In Touch
-            </h1>
-            <p className="text-xl md:text-2xl text-center text-blue-100 max-w-3xl mx-auto">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-            </p>
+      <div className="min-h-screen bg-white">
+        {/* Hero Section - Gradient */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              className="absolute top-20 left-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+              animate={{
+                scale: [1, 1.2, 1],
+                x: [0, 100, 0],
+                y: [0, 50, 0],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            />
+            <motion.div
+              className="absolute top-40 right-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+              animate={{
+                scale: [1, 1.3, 1],
+                x: [0, -80, 0],
+                y: [0, 80, 0],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            />
           </div>
+        <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center"
+          >
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight"
+            >
+              Get In <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Touch</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto font-light"
+        >
+              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </motion.p>
         </motion.div>
+        </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           {/* Contact Info Cards */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
           >
             {contactInfo.map((info, index) => {
               const Icon = info.icon;
@@ -119,22 +168,23 @@ const Contact = () => {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white rounded-xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-xl"
+                  whileHover={{ scale: 1.05, y: -8 }}
+                  className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center hover:shadow-2xl transition-all duration-300 relative group overflow-hidden"
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                    <Icon className="w-8 h-8 text-blue-600" />
+                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${info.gradient} opacity-10 rounded-full blur-3xl -z-10 group-hover:opacity-20 transition-opacity duration-500`}></div>
+                  <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${info.gradient} rounded-2xl mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <Icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{info.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{info.title}</h3>
                   {info.link ? (
                     <a
                       href={info.link}
-                      className="text-blue-600 hover:text-blue-700 transition-colors"
+                      className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                     >
                       {info.content}
                     </a>
                   ) : (
-                    <p className="text-gray-600">{info.content}</p>
+                    <p className="text-gray-600 font-medium">{info.content}</p>
                   )}
                 </motion.div>
               );
@@ -145,19 +195,22 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Form */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-xl p-8"
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
             >
               <div className="flex items-center gap-3 mb-6">
-                <MessageSquare className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800">Send us a Message</h2>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <MessageSquare className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-3xl font-black text-gray-900 tracking-tight">Send us a Message</h2>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                     Your Name
                   </label>
                   <input
@@ -167,13 +220,13 @@ const Contact = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none"
                     placeholder="John Doe"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
                   <input
@@ -183,13 +236,13 @@ const Contact = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none"
                     placeholder="john@example.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
                     Subject
                   </label>
                   <input
@@ -199,13 +252,13 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none"
                     placeholder="How can we help?"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
                     Message
                   </label>
                   <textarea
@@ -215,7 +268,7 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none resize-none"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none resize-none"
                     placeholder="Tell us more about your inquiry..."
                   />
                 </div>
@@ -223,9 +276,9 @@ const Contact = () => {
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   {isSubmitting ? (
                     <>
@@ -244,7 +297,7 @@ const Contact = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg"
+                    className="bg-green-50 border-2 border-green-200 text-green-800 px-4 py-3 rounded-xl font-medium"
                   >
                     Thank you! Your message has been sent successfully.
                   </motion.div>
@@ -254,44 +307,57 @@ const Contact = () => {
 
             {/* Map/Additional Info */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="space-y-6"
             >
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Find Us</h2>
-                <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center mb-6">
-                  <MapPin className="w-12 h-12 text-gray-400" />
+              <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+                <h2 className="text-3xl font-black text-gray-900 mb-6 tracking-tight">Find Us</h2>
+                <div className="bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl h-64 flex items-center justify-center mb-6">
+                  <MapPin className="w-16 h-16 text-gray-400" />
                 </div>
                 <div className="space-y-4 text-gray-600">
                   <p className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <span>Varanasi, Uttar Pradesh, India</span>
+                    <span className="font-medium">Varanasi, Uttar Pradesh, India</span>
                   </p>
                   <p className="flex items-start gap-3">
                     <Mail className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <span>info@varanasihub.com</span>
+                    <span className="font-medium">info@varanasihub.com</span>
                   </p>
                   <p className="flex items-start gap-3">
                     <Phone className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-                    <span>+91 9876543210</span>
+                    <span className="font-medium">+91 9876543210</span>
                   </p>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-xl p-8 text-white">
-                <h3 className="text-xl font-bold mb-4">Need Immediate Assistance?</h3>
-                <p className="mb-6 text-blue-100">
+              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full filter blur-3xl"></div>
+                </div>
+                <div className="relative z-10">
+                  <motion.div
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 1 }}
+                    className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4"
+                  >
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <h3 className="text-2xl font-bold mb-4">Need Immediate Assistance?</h3>
+                  <p className="mb-6 text-white/90 leading-relaxed">
                   Our support team is available during business hours to help you with any questions or concerns.
                 </p>
                 <a
                   href="mailto:support@varanasihub.com"
-                  className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200"
+                    className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 shadow-lg"
                 >
                   <Mail className="w-5 h-5" />
                   Contact Support
                 </a>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -303,4 +369,3 @@ const Contact = () => {
 };
 
 export default Contact;
-

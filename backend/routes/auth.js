@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { verifyToken } from '../middleware/auth.js';
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
+import { sendWelcomeEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -215,6 +216,8 @@ router.post('/verify-otp', async (req, res) => {
           googleId: null,
         });
         console.log(`New user created via OTP: ${email}`);
+        // Send welcome email
+        await sendWelcomeEmail(email, null);
       }
     } else {
       // Login: user must exist
@@ -302,6 +305,8 @@ router.post('/google', async (req, res) => {
         bio: null,
       });
       console.log(`New user created via Google: ${email}`);
+      // Send welcome email
+      await sendWelcomeEmail(email, name);
     } else {
       // Existing user - update info and login (email is common, so allow login)
       user = await User.update(user.id, {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Calendar, Edit2, Save, X, Building2, ExternalLink, Plus, Shield, CheckCircle, XCircle, Clock, Users, FileText, Settings, BarChart3, AlertCircle } from 'lucide-react';
+import { User, Mail, Calendar, Edit2, Save, X, Building2, ExternalLink, Plus, Shield, CheckCircle, XCircle, Clock, Users, FileText, Settings, BarChart3, AlertCircle, Trash2, Eye, BadgeCheck, Sparkles, QrCode } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { authAPI, businessAPI } from '../config/api';
 
@@ -17,7 +17,11 @@ const Profile = () => {
   const [pendingEditApprovals, setPendingEditApprovals] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [loadingAdmin, setLoadingAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState('websites'); // 'websites', 'admin'
+  const [activeTab, setActiveTab] = useState('websites'); // 'websites', 'admin', 'all-businesses', 'analytics'
+  const [allBusinesses, setAllBusinesses] = useState([]);
+  const [loadingAllBusinesses, setLoadingAllBusinesses] = useState(false);
+  const [unifiedAnalytics, setUnifiedAnalytics] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -347,10 +351,10 @@ const Profile = () => {
                 </div>
                 <p className="text-gray-800 font-medium">
                   {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
+                    ? new Date(user.createdAt).toLocaleDateString('en-IN', {
                         day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
                       })
                     : 'Recently'}
                 </p>
@@ -488,14 +492,24 @@ const Profile = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-3 mt-auto">
-                      <Link
-                        to={`/edit-website/${business.id}`}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center gap-2 font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                        title="Edit this website - Change theme, update details, modify services"
-                      >
-                        <Edit2 className="w-5 h-5 md:w-6 md:h-6" />
-                        <span>✏️ Edit Website</span>
-                      </Link>
+                      <div className="flex flex-col sm:flex-row gap-2 w-full">
+                        <Link
+                          to={`/edit-website/${business.id}`}
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center gap-2 font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                          title="Edit this website - Change theme, update details, modify services"
+                        >
+                          <Edit2 className="w-5 h-5 md:w-6 md:h-6" />
+                          <span>✏️ Edit Website</span>
+                        </Link>
+                        <Link
+                          to={`/analytics/${business.id}`}
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center gap-2 font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                          title="View analytics - Visitors, clicks, and engagement metrics"
+                        >
+                          <BarChart3 className="w-5 h-5 md:w-6 md:h-6" />
+                          <span>📊 Analytics</span>
+                        </Link>
+                      </div>
                       <div className="flex gap-2">
                         <a
                           href={business.subdirectoryUrl}
@@ -518,6 +532,36 @@ const Profile = () => {
                           Subdomain
                         </a>
                       </div>
+                      <Link
+                        to={`/qrcode/${business.id}`}
+                        className="w-full px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-xs md:text-sm shadow-md hover:shadow-lg mt-2"
+                        title="Generate QR code for your website"
+                      >
+                        <QrCode className="w-4 h-4" />
+                        QR Code
+                      </Link>
+                      {!business.isPremium && business.status === 'approved' && (
+                        <button
+                          onClick={async () => {
+                            if (window.confirm('Upgrade to Premium?\n\nBenefits:\n✓ Blue verified badge\n✓ Higher ranking in directory\n✓ Increased visibility\n\nProceed with upgrade?')) {
+                              try {
+                                await businessAPI.upgradeToPremium(business.id);
+                                // Refresh businesses list
+                                const res = await businessAPI.getUserBusinesses();
+                                setBusinesses(res.businesses || []);
+                                alert('🎉 Congratulations! Your business is now Premium with a verified badge!');
+                              } catch (error) {
+                                alert('Error: ' + error.message);
+                              }
+                            }
+                          }}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white rounded-xl hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 transition-all duration-200 flex items-center justify-center gap-2 font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] mt-2"
+                          title="Upgrade to Premium - Get verified badge and higher ranking"
+                        >
+                          <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+                          <span>⭐ Upgrade to Premium</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -566,6 +610,54 @@ const Profile = () => {
                       {pendingApprovals.length + pendingEditApprovals.length}
                     </span>
                   )}
+                </button>
+                <button
+                  onClick={async () => {
+                    setActiveTab('all-businesses');
+                    if (allBusinesses.length === 0) {
+                      setLoadingAllBusinesses(true);
+                      try {
+                        const res = await businessAPI.getAllBusinesses();
+                        setAllBusinesses(res.businesses || []);
+                      } catch (error) {
+                        console.error('Error fetching all businesses:', error);
+                        alert('Error: ' + error.message);
+                      } finally {
+                        setLoadingAllBusinesses(false);
+                      }
+                    }
+                  }}
+                  className={`px-4 md:px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'all-businesses'
+                      ? 'text-purple-600 border-b-2 border-purple-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  All Websites
+                </button>
+                <button
+                  onClick={async () => {
+                    setActiveTab('analytics');
+                    if (!unifiedAnalytics) {
+                      setLoadingAnalytics(true);
+                      try {
+                        const res = await businessAPI.getAllAnalytics();
+                        setUnifiedAnalytics(res);
+                      } catch (error) {
+                        console.error('Error fetching unified analytics:', error);
+                        alert('Error: ' + error.message);
+                      } finally {
+                        setLoadingAnalytics(false);
+                      }
+                    }
+                  }}
+                  className={`px-4 md:px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'analytics'
+                      ? 'text-purple-600 border-b-2 border-purple-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  📊 All Analytics
                 </button>
               </div>
             </div>
@@ -650,7 +742,7 @@ const Profile = () => {
                                 <div className="flex-1 min-w-0">
                                   <h4 className="font-bold text-gray-900 mb-1 truncate">{business.businessName}</h4>
                                   <p className="text-sm text-gray-600 mb-2 truncate">{business.category} • {business.email}</p>
-                                  <p className="text-xs text-gray-500">Created: {new Date(business.createdAt).toLocaleDateString()}</p>
+                                      <p className="text-xs text-gray-500">Created: {new Date(business.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                 </div>
                                 <div className="flex gap-2 w-full sm:w-auto flex-shrink-0">
                                   <button
@@ -720,7 +812,7 @@ const Profile = () => {
                                 <div className="flex-1 min-w-0">
                                   <h4 className="font-bold text-gray-900 mb-1 truncate">{business.businessName}</h4>
                                   <p className="text-sm text-gray-600 mb-2 truncate">{business.category}</p>
-                                  <p className="text-xs text-gray-500">Updated: {new Date(business.updatedAt).toLocaleDateString()}</p>
+                                      <p className="text-xs text-gray-500">Updated: {new Date(business.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                 </div>
                                 <div className="flex gap-2 w-full sm:w-auto flex-shrink-0">
                                   <a
@@ -840,6 +932,215 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* All Businesses Tab */}
+            {activeTab === 'all-businesses' && (
+              <div className="p-6 md:p-8">
+                {loadingAllBusinesses ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading all businesses...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900">All Websites ({allBusinesses.length})</h3>
+                    </div>
+                    {allBusinesses.length === 0 ? (
+                      <p className="text-gray-600 text-center py-8">No businesses found</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {allBusinesses.map((business) => (
+                          <div key={business.id} className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-gray-200 hover:shadow-xl transition-shadow">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-lg md:text-xl font-bold text-gray-900 mb-1 truncate">{business.businessName}</h4>
+                                <p className="text-sm text-gray-600 mb-2 truncate">{business.category}</p>
+                                <p className="text-xs text-gray-500 mb-1">Owner: {business.ownerName || 'N/A'}</p>
+                                <p className="text-xs text-gray-500 mb-2">{business.ownerEmail || 'N/A'}</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          business.status === 'approved' ? 'bg-green-100 text-green-700' :
+                          business.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {business.status}
+                        </span>
+                        {business.isPremium && (
+                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 flex items-center gap-1">
+                            <BadgeCheck className="w-3 h-3" />
+                            Verified
+                          </span>
+                        )}
+                        {business.editApprovalStatus === 'pending' && (
+                          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                            Edit Pending
+                          </span>
+                        )}
+                      </div>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <div className="flex gap-2">
+                                <Link
+                                  to={`/edit-website/${business.id}`}
+                                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-medium text-sm"
+                                  title="Edit this website"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                  Edit
+                                </Link>
+                                <a
+                                  href={business.subdirectoryUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2 font-medium text-sm"
+                                  title="View website"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  View
+                                </a>
+                                <button
+                                  onClick={async () => {
+                                    if (window.confirm(`Are you sure you want to delete "${business.businessName}"? This action cannot be undone.`)) {
+                                      try {
+                                        await businessAPI.deleteBusiness(business.id);
+                                        setAllBusinesses(allBusinesses.filter(b => b.id !== business.id));
+                                        alert('Business deleted successfully!');
+                                      } catch (error) {
+                                        alert('Error: ' + error.message);
+                                      }
+                                    }
+                                  }}
+                                  className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2 font-medium text-sm"
+                                  title="Delete this website"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <Link
+                                to={`/analytics/${business.id}`}
+                                className="w-full px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center justify-center gap-2 font-medium text-sm"
+                                title="View analytics"
+                              >
+                                <BarChart3 className="w-4 h-4" />
+                                Analytics
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Unified Analytics Tab */}
+            {activeTab === 'analytics' && (
+              <div className="p-6 md:p-8">
+                {loadingAnalytics ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading unified analytics...</p>
+                  </div>
+                ) : unifiedAnalytics ? (
+                  <div className="space-y-6">
+                    {/* Overall Totals */}
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl p-6 md:p-8 border-2 border-purple-200">
+                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Overall Platform Analytics</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">Total Visitors</p>
+                          <p className="text-2xl md:text-3xl font-bold text-blue-600">{unifiedAnalytics.totals.totalVisitors.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">Call Clicks</p>
+                          <p className="text-2xl md:text-3xl font-bold text-green-600">{unifiedAnalytics.totals.totalCallClicks.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">WhatsApp Clicks</p>
+                          <p className="text-2xl md:text-3xl font-bold text-emerald-600">{unifiedAnalytics.totals.totalWhatsAppClicks.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">Gallery Views</p>
+                          <p className="text-2xl md:text-3xl font-bold text-purple-600">{unifiedAnalytics.totals.totalGalleryViews.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">Map Clicks</p>
+                          <p className="text-2xl md:text-3xl font-bold text-red-600">{unifiedAnalytics.totals.totalMapClicks.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 shadow-lg">
+                          <p className="text-sm text-gray-600 mb-1">Total Interactions</p>
+                          <p className="text-2xl md:text-3xl font-bold text-indigo-600">{unifiedAnalytics.totals.totalInteractions.toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Individual Business Analytics */}
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Business-wise Analytics</h3>
+                      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Business</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Visitors</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Calls</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">WhatsApp</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Gallery</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Maps</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {unifiedAnalytics.businesses.map((analytics) => (
+                                <tr key={analytics.businessId} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 whitespace-nowrap">
+                                    <div className="text-sm font-semibold text-gray-900">{analytics.businessName}</div>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-blue-600">{parseInt(analytics.visitor_count || 0).toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-green-600">{parseInt(analytics.call_clicks || 0).toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-emerald-600">{parseInt(analytics.whatsapp_clicks || 0).toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-purple-600">{parseInt(analytics.gallery_views || 0).toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-red-600">{parseInt(analytics.map_clicks || 0).toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className="text-sm font-bold text-indigo-600">{analytics.totalInteractions.toLocaleString('en-IN')}</span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
+                                    <Link
+                                      to={`/analytics/${analytics.businessId}`}
+                                      className="inline-flex items-center gap-1 px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all text-xs font-medium"
+                                    >
+                                      <BarChart3 className="w-3 h-3" />
+                                      Details
+                                    </Link>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-600 text-center py-8">No analytics data available</p>
                 )}
               </div>
             )}

@@ -70,12 +70,12 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-md">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border-b border-black/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+            <Link to="/" className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 transition-all duration-300 tracking-tight">
               VaranasiHub
             </Link>
           </div>
@@ -84,19 +84,19 @@ const Navbar = () => {
           <div className="hidden md:flex md:items-center md:space-x-1 lg:space-x-2 flex-1 justify-center">
             <Link
               to="/"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
             >
               Home
             </Link>
             <Link
-              to="/directory"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              to="/businesses"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
             >
-              Directory
+              Businesses
             </Link>
             <Link
               to="/about"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
             >
               About
             </Link>
@@ -107,11 +107,11 @@ const Navbar = () => {
                 onClick={toggleCategories}
                 onMouseEnter={() => setIsCategoriesOpen(true)}
                 onMouseLeave={() => setIsCategoriesOpen(false)}
-                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 flex items-center gap-1"
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 flex items-center gap-1"
               >
                 Categories
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${
+                  className={`w-4 h-4 transition-transform duration-300 ${
                     isCategoriesOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -122,13 +122,13 @@ const Navbar = () => {
                 <div
                   onMouseEnter={() => setIsCategoriesOpen(true)}
                   onMouseLeave={() => setIsCategoriesOpen(false)}
-                  className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50"
+                  className="absolute top-full left-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-black/10 py-2 z-50"
                 >
                   {categories.map((category) => (
                     <a
                       key={category}
                       href={`#${category.toLowerCase()}`}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                      className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 rounded-lg mx-2"
                     >
                       {category}
                     </a>
@@ -139,19 +139,13 @@ const Navbar = () => {
 
             <Link
               to="/pricing"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
             >
               Pricing
             </Link>
             <Link
-              to="/how-it-works"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
-            >
-              How It Works
-            </Link>
-            <Link
               to="/contact"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
             >
               Contact
             </Link>
@@ -163,20 +157,20 @@ const Navbar = () => {
               <>
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
                 >
                   <User className="w-4 h-4" />
-                  <span className="font-medium">{user?.name || user?.email || 'User'}</span>
+                  <span>{user?.name || user?.email || 'User'}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                  className="px-4 py-2 text-sm font-semibold text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
                 >
                   Logout
                 </button>
                 <Link
                   to="/create-website"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-sm shadow-lg hover:shadow-xl"
                 >
                   Create Website
                 </Link>
@@ -185,19 +179,19 @@ const Navbar = () => {
               <>
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                  className="px-4 py-2 text-sm font-semibold text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all duration-200"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all duration-300 shadow-lg"
                 >
                   Sign Up
                 </Link>
                 <Link
                   to="/create-website"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-sm shadow-lg hover:shadow-xl"
                 >
                   Create Website
                 </Link>
@@ -209,7 +203,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={toggleMobileMenu}
-              className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+              className="p-2 rounded-md text-black hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -223,25 +217,25 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
+          <div className="md:hidden border-t-2 border-black py-4">
             <div className="flex flex-col space-y-1">
               <Link
                 to="/"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                className="px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
-                to="/directory"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                to="/businesses"
+                className="px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Directory
+                Businesses
               </Link>
               <Link
                 to="/about"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                className="px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 About
@@ -251,7 +245,7 @@ const Navbar = () => {
               <div>
                 <button
                   onClick={toggleMobileCategories}
-                  className="w-full px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200 flex items-center justify-between"
+                  className="w-full px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200 flex items-center justify-between"
                 >
                   <span>Categories</span>
                   <ChevronDown
@@ -268,7 +262,7 @@ const Navbar = () => {
                       <a
                         key={category}
                         href={`#${category.toLowerCase()}`}
-                        className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                        className="block px-4 py-2 text-sm text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                         onClick={() => {
                           setIsMobileMenuOpen(false);
                           setIsMobileCategoriesOpen(false);
@@ -283,21 +277,14 @@ const Navbar = () => {
 
               <Link
                 to="/pricing"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                className="px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Pricing
               </Link>
               <Link
-                to="/how-it-works"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                How It Works
-              </Link>
-              <Link
                 to="/contact"
-                className="px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
+                className="px-4 py-2 text-base font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Contact
@@ -306,10 +293,10 @@ const Navbar = () => {
               {/* Mobile Auth Buttons */}
               {isLoggedIn ? (
                 <>
-                  <div className="pt-2 border-t border-gray-200 mt-2">
+                  <div className="pt-2 border-t-2 border-black mt-2">
                     <Link
                       to="/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <User className="w-4 h-4" />
@@ -320,7 +307,7 @@ const Navbar = () => {
                         handleLogout();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="w-full mt-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                      className="w-full mt-2 px-4 py-2 text-sm font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                     >
                       Logout
                     </button>
@@ -328,7 +315,7 @@ const Navbar = () => {
                   <div className="pt-2">
                     <Link
                       to="/create-website"
-                      className="block w-full px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md text-center"
+                      className="block w-full px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md text-center"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Create Website
@@ -337,17 +324,17 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <div className="pt-2 border-t border-gray-200 mt-2 space-y-2">
+                  <div className="pt-2 border-t-2 border-black mt-2 space-y-2">
                     <Link
                       to="/login"
-                      className="block w-full px-4 py-2 text-center text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                      className="block w-full px-4 py-2 text-center text-sm font-medium text-black hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Login
                     </Link>
                     <Link
                       to="/signup"
-                      className="block w-full px-4 py-2 text-center text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all duration-200"
+                      className="block w-full px-4 py-2 text-center text-sm font-medium text-white bg-[#22c55e] hover:bg-[#16a34a] rounded-xl transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Sign Up
@@ -356,7 +343,7 @@ const Navbar = () => {
                   <div className="pt-2">
                     <Link
                       to="/create-website"
-                      className="block w-full px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md text-center"
+                      className="block w-full px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md text-center"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Create Website
@@ -373,4 +360,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
