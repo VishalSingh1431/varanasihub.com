@@ -2786,6 +2786,7 @@ export const generateBusinessHTML = (business) => {
           alert('Error placing order. Please try again.');
         }
       };
+      
 
       // Initialize
       if (document.getElementById('products-container')) {
